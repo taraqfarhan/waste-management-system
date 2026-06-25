@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login — RCC WMS</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <div class="brand">
+        <img
+          class="brand-logo"
+          src="images/rcc_logo.png"
+          alt="RCC"
+          onerror="this.style.display = 'none'"
+        />
+        <div class="brand-text">
+          Rajshahi City Corporation
+          <span>Waste Management System</span>
+        </div>
+      </div>
+      <div class="nav-links" id="navLinks">
+        <a class="nav-btn" href="index.html" data-i18n="home">Home</a>
+        <a class="nav-btn" href="stations.html" data-i18n="stations"
+          >Stations</a
+        >
+        <div class="lang-toggle">
+          <button class="lang-btn" data-lang="en">EN</button>
+          <button class="lang-btn" data-lang="bn">বাং</button>
+        </div>
+        <button class="theme-toggle" title="Toggle Dark/Light Mode">☀️</button>
+      </div>
+    </nav>
+
+    <div class="auth-wrap">
+      <div class="auth-card">
+        <div class="auth-logo">
+          <img
+            src="images/rcc_logo.png"
+            alt="RCC"
+            onerror="this.style.display = 'none'"
+          />
+          <div class="auth-logo-title">RCC Portal</div>
+          <div class="auth-logo-sub">Waste Management System</div>
+        </div>
+
+        <div class="auth-tab-row">
+          <button
+            class="auth-tab active"
+            id="tabLogin"
+            onclick="switchTab('login')"
+          >
+            Login
+          </button>
+          <button
+            class="auth-tab"
+            id="tabRegister"
+            onclick="switchTab('register')"
+          >
+            Register
+          </button>
+        </div>
+
+        <!-- Login Form -->
+        <div id="loginForm">
+          <div class="auth-field">
+            <label class="auth-label">Email</label>
+            <input
+              class="auth-input"
+              id="loginEmail"
+              type="email"
+              placeholder="you@example.com"
+              autocomplete="email"
+            />
+          </div>
+          <div class="auth-field">
+            <label class="auth-label">Password</label>
+            <input
+              class="auth-input"
+              id="loginPass"
+              type="password"
+              placeholder="••••••••"
+              autocomplete="current-password"
+            />
+          </div>
+          <div class="auth-error" id="loginError"></div>
+          <button class="auth-submit" onclick="doLogin()">Login</button>
+        </div>
+
+        <!-- Register Form -->
+        <div id="registerForm" style="display: none">
+          <div class="auth-field">
+            <label class="auth-label">Full Name</label>
+            <input
+              class="auth-input"
+              id="regName"
+              type="text"
+              placeholder="Your name"
+              autocomplete="name"
+            />
+          </div>
+          <div class="auth-field">
+            <label class="auth-label">Email</label>
+            <input
+              class="auth-input"
+              id="regEmail"
+              type="email"
+              placeholder="you@example.com"
+              autocomplete="email"
+            />
+          </div>
+          <div class="auth-field">
+            <label class="auth-label">Password</label>
+            <input
+              class="auth-input"
+              id="regPass"
+              type="password"
+              placeholder="Min. 6 characters"
+              autocomplete="new-password"
+            />
+          </div>
+          <div class="auth-error" id="registerError"></div>
+          <button class="auth-submit" onclick="doRegister()">
+            Create Account
+          </button>
+          <p class="auth-footer-txt">
+            Already have an account?
+            <a href="#" onclick="switchTab('login')" style="color: #4caf5a"
+              >Login</a
+            >
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script>
+      function switchTab(tab) {
+        document.getElementById("loginForm").style.display =
+          tab === "login" ? "block" : "none";
+        document.getElementById("registerForm").style.display =
+          tab === "register" ? "block" : "none";
+        document
+          .getElementById("tabLogin")
+          .classList.toggle("active", tab === "login");
+        document
+          .getElementById("tabRegister")
+          .classList.toggle("active", tab === "register");
+        document.getElementById("loginError").style.display = "none";
+        document.getElementById("registerError").style.display = "none";
+      }
+
+      // Redirect if already logged in
+      fetch("/api/auth/me")
+        .then((r) => r.json())
+        .then(({ user }) => {
+          if (user)
+            window.location.href =
+              user.role === "admin" ? "/admin.html" : "/my-complaints.html";
+        });
+
+      async function doLogin() {
+        const email = document.getElementById("loginEmail").value.trim();
+        const password = document.getElementById("loginPass").value;
+        const errEl = document.getElementById("loginError");
+        errEl.style.display = "none";
+        if (!email || !password) {
+          errEl.textContent = "Please fill all fields.";
+          errEl.style.display = "block";
+          return;
+        }
+        try {
+          const r = await fetch("/api/auth/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password }),
+          });
+          const data = await r.json();
+          if (!r.ok) throw new Error(data.error);
+          window.location.href =
+            data.user.role === "admin" ? "/admin.html" : "/my-complaints.html";
+        } catch (e) {
+          errEl.textContent = e.message;
+          errEl.style.display = "block";
+        }
+      }
+
+      async function doRegister() {
+        const name = document.getElementById("regName").value.trim();
+        const email = document.getElementById("regEmail").value.trim();
+        const password = document.getElementById("regPass").value;
+        const errEl = document.getElementById("registerError");
+        errEl.style.display = "none";
+        if (!name || !email || !password) {
+          errEl.textContent = "Please fill all fields.";
+          errEl.style.display = "block";
+          return;
+        }
+        try {
+          const r = await fetch("/api/auth/register", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name, email, password }),
+          });
+          const data = await r.json();
+          if (!r.ok) throw new Error(data.error);
+          window.location.href = "/my-complaints.html";
+        } catch (e) {
+          errEl.textContent = e.message;
+          errEl.style.display = "block";
+        }
+      }
+
+      // Enter key support
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          if (document.getElementById("loginForm").style.display !== "none")
+            doLogin();
+          else doRegister();
+        }
+      });
+    </script>
+  </body>
+</html>

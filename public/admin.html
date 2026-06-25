@@ -1,0 +1,783 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Dashboard — RCC WMS</title>
+    <link rel="stylesheet" href="css/style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  </head>
+  <body>
+    <nav>
+      <div class="brand">
+        <img
+          class="brand-logo"
+          src="images/rcc_logo.png"
+          alt="RCC"
+          onerror="this.style.display = 'none'"
+        />
+        <div class="brand-text">
+          Rajshahi City Corporation <span>Admin Dashboard</span>
+        </div>
+      </div>
+      <div class="nav-links" id="navLinks">
+        <a class="nav-btn" href="index.html" data-i18n="home">Home</a>
+        <a class="nav-btn" href="stations.html" data-i18n="stations"
+          >Stations</a
+        >
+        <a class="nav-btn" href="map.html" data-i18n="map">Map</a>
+        <div class="lang-toggle">
+          <button class="lang-btn" data-lang="en">EN</button>
+          <button class="lang-btn" data-lang="bn">বাং</button>
+        </div>
+        <button class="theme-toggle" title="Toggle Dark/Light Mode">☀️</button>
+      </div>
+    </nav>
+
+    <div class="page-bg">
+      <div class="page-body">
+        <div class="page-eyebrow">Admin Panel</div>
+        <h1 class="page-title"><strong>Dashboard</strong></h1>
+        <div class="page-line"></div>
+
+        <!-- Tab nav -->
+        <div
+          style="display: flex; gap: 8px; margin-bottom: 28px; flex-wrap: wrap"
+        >
+          <button
+            class="nav-btn active"
+            onclick="showTab('overview')"
+            id="tab-overview"
+          >
+            📊 Overview
+          </button>
+          <button
+            class="nav-btn"
+            onclick="showTab('complaints')"
+            id="tab-complaints"
+          >
+            ⚠️ Complaints
+          </button>
+          <button class="nav-btn" onclick="showTab('history')" id="tab-history">
+            📈 Station History
+          </button>
+          <button class="nav-btn" onclick="showTab('users')" id="tab-users">
+            👥 Users
+          </button>
+          <button class="nav-btn nav-btn--gold" onclick="downloadReport()">
+            📄 Monthly PDF Report
+          </button>
+        </div>
+
+        <!-- ── OVERVIEW TAB ── -->
+        <div id="pane-overview">
+          <div class="dashboard-grid" id="statCards">
+            <div class="stat-card">
+              <div class="stat-label">Total Complaints</div>
+              <div class="stat-value" id="s-total">–</div>
+            </div>
+            <div class="stat-card stat-card--gold">
+              <div class="stat-label">Pending</div>
+              <div class="stat-value" id="s-pending">–</div>
+            </div>
+            <div class="stat-card stat-card--blue">
+              <div class="stat-label">Under Review</div>
+              <div class="stat-value" id="s-reviewing">–</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Resolved</div>
+              <div class="stat-value" id="s-resolved">–</div>
+            </div>
+            <div class="stat-card stat-card--red">
+              <div class="stat-label">Resolution Rate</div>
+              <div class="stat-value" id="s-rate">–</div>
+            </div>
+            <div class="stat-card stat-card--blue">
+              <div class="stat-label">Total Users</div>
+              <div class="stat-value" id="s-users">–</div>
+            </div>
+          </div>
+
+          <div class="charts-grid">
+            <div class="chart-card">
+              <div class="chart-card-title">Complaints by Type</div>
+              <div class="chart-container">
+                <canvas id="chartType"></canvas>
+              </div>
+            </div>
+            <div class="chart-card">
+              <div class="chart-card-title">Complaints by Status</div>
+              <div class="chart-container">
+                <canvas id="chartStatus"></canvas>
+              </div>
+            </div>
+            <div class="chart-card" style="grid-column: 1/-1">
+              <div class="chart-card-title">Monthly Trend (Last 12 months)</div>
+              <div class="chart-container" style="height: 180px">
+                <canvas id="chartMonthly"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-title">
+            <span>By Station</span>Complaint Breakdown
+          </div>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Station</th>
+                  <th>Total</th>
+                  <th>Resolved</th>
+                  <th>Pending</th>
+                  <th>Resolution Rate</th>
+                </tr>
+              </thead>
+              <tbody id="stationBreakdown"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ── COMPLAINTS TAB ── -->
+        <div id="pane-complaints" style="display: none">
+          <div class="filter-row">
+            <select
+              class="filter-select"
+              id="filterStation"
+              onchange="loadComplaints()"
+            >
+              <option value="">All Stations</option>
+            </select>
+            <select
+              class="filter-select"
+              id="filterStatus"
+              onchange="loadComplaints()"
+            >
+              <option value="">All Statuses</option>
+              <option value="pending">Pending</option>
+              <option value="reviewing">Reviewing</option>
+              <option value="resolved">Resolved</option>
+            </select>
+            <select
+              class="filter-select"
+              id="filterMonth"
+              onchange="loadComplaints()"
+            >
+              <option value="">All Months</option>
+            </select>
+            <button class="btn-outline btn-sm" onclick="loadComplaints()">
+              🔄 Refresh
+            </button>
+          </div>
+
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Station</th>
+                  <th>Type</th>
+                  <th>Submitted By</th>
+                  <th>Description</th>
+                  <th>Status</th>
+                  <th>Date</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="complaintsTable"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ── STATION HISTORY TAB ── -->
+        <div id="pane-history" style="display: none">
+          <div class="filter-row">
+            <select
+              class="filter-select"
+              id="histStation"
+              onchange="loadStationHistory()"
+            >
+              <option value="">Select a station…</option>
+            </select>
+            <button
+              class="range-btn active"
+              data-days="7"
+              onclick="setHistDays(7, this)"
+            >
+              7 days
+            </button>
+            <button
+              class="range-btn"
+              data-days="14"
+              onclick="setHistDays(14, this)"
+            >
+              14 days
+            </button>
+            <button
+              class="range-btn"
+              data-days="30"
+              onclick="setHistDays(30, this)"
+            >
+              30 days
+            </button>
+          </div>
+
+          <div class="charts-grid">
+            <div class="chart-card" style="grid-column: 1/-1">
+              <div class="chart-card-title" id="histChartTitle">
+                Select a station to view fill history
+              </div>
+              <div class="chart-container" style="height: 260px">
+                <canvas id="histChart"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-title" style="margin-top: 8px">
+            <span>All Stations</span>7-Day Avg Fill Level
+          </div>
+          <div class="charts-grid">
+            <div class="chart-card" style="grid-column: 1/-1">
+              <div class="chart-card-title">
+                All Stations — Daily Average Fill %
+              </div>
+              <div class="chart-container" style="height: 220px">
+                <canvas id="allStationsChart"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── USERS TAB ── -->
+        <div id="pane-users" style="display: none">
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Role</th>
+                  <th>Joined</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="usersTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <!-- /page-body -->
+      <footer>
+        © 2026 Rajshahi City Corporation · Waste Management System
+      </footer>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script>
+      /* ── Constants ─────────────────────────────────── */
+      // ── Theme-aware chart colors ──────────────────────────
+      function isLightMode() {
+        return document.body.classList.contains("light-mode");
+      }
+      function getChartBg() {
+        return isLightMode() ? "rgba(255,255,255,0.97)" : "rgba(13,43,15,0.97)";
+      }
+      function getChartText() {
+        return isLightMode() ? "#0d2b0f" : "#c8e6c9";
+      }
+      function getChartMuted() {
+        return isLightMode() ? "rgba(30,80,34,0.55)" : "rgba(184,230,188,0.55)";
+      }
+      function getChartGrid() {
+        return isLightMode() ? "rgba(45,122,53,0.10)" : "rgba(76,175,90,0.07)";
+      }
+      const TYPE_LABELS = {
+        overflow: "Bin Overflow",
+        odor: "Bad Odor",
+        damage: "Damaged Infra",
+        illegal: "Illegal Dumping",
+        staff: "Staff Conduct",
+        other: "Other",
+      };
+      const CHART_COLORS = [
+        "#4caf5a",
+        "#c9a84c",
+        "#8ab4f8",
+        "#ff8080",
+        "#b39ddb",
+        "#80cbc4",
+      ];
+      let histDays = 7;
+      let histChartInst = null,
+        allStationsChartInst = null;
+      let typeChartInst = null,
+        statusChartInst = null,
+        monthlyChartInst = null;
+
+      /* ── Auth guard ────────────────────────────────── */
+      document.addEventListener("DOMContentLoaded", async () => {
+        const me = await fetch("/api/auth/me").then((r) => r.json());
+        if (!me.user || me.user.role !== "admin") {
+          window.location.href = "/login.html";
+          return;
+        }
+
+        await Promise.all([
+          loadAnalytics(),
+          loadStationsList(),
+          populateMonthFilter(),
+        ]);
+        loadComplaints();
+        loadUsers();
+      });
+
+      /* ── Tab switching ─────────────────────────────── */
+      function showTab(name) {
+        ["overview", "complaints", "history", "users"].forEach((t) => {
+          document.getElementById(`pane-${t}`).style.display =
+            t === name ? "block" : "none";
+          document
+            .getElementById(`tab-${t}`)
+            .classList.toggle("active", t === name);
+        });
+        if (name === "history") loadAllStationsHistory();
+      }
+
+      /* ── Analytics / Overview ──────────────────────── */
+      async function loadAnalytics() {
+        const [analyticsRes, usersRes] = await Promise.all([
+          fetch("/api/complaints/analytics"),
+          fetch("/api/admin/users"),
+        ]);
+        const analytics = await analyticsRes.json();
+        const users = await usersRes.json();
+
+        // Stat cards
+        const byStatus = {};
+        analytics.byStatus.forEach((r) => {
+          byStatus[r.status] = r.count;
+        });
+        const total = analytics.byStation.reduce((a, b) => a + b.total, 0);
+        const resolved = byStatus.resolved || 0;
+        const pending = byStatus.pending || 0;
+        const reviewing = byStatus.reviewing || 0;
+        const rate = total ? Math.round((resolved / total) * 100) : 0;
+
+        document.getElementById("s-total").textContent = total;
+        document.getElementById("s-pending").textContent = pending;
+        document.getElementById("s-reviewing").textContent = reviewing;
+        document.getElementById("s-resolved").textContent = resolved;
+        document.getElementById("s-rate").textContent = rate + "%";
+        document.getElementById("s-users").textContent = users.length;
+
+        // Charts
+        drawDonut(
+          "chartType",
+          analytics.byType.map((r) => TYPE_LABELS[r.type] || r.type),
+          analytics.byType.map((r) => r.count),
+          CHART_COLORS,
+        );
+
+        drawDonut(
+          "chartStatus",
+          ["Pending", "Reviewing", "Resolved"],
+          [pending, reviewing, resolved],
+          ["#ffb84d", "#8ab4f8", "#4caf5a"],
+        );
+
+        drawLineChart(
+          "chartMonthly",
+          analytics.byMonth.map((r) => r.month).reverse(),
+          analytics.byMonth.map((r) => r.count).reverse(),
+          "Complaints",
+          "#4caf5a",
+        );
+
+        // Station breakdown table
+        const tbody = document.getElementById("stationBreakdown");
+        tbody.innerHTML = analytics.byStation
+          .map((r) => {
+            const rate = r.total ? Math.round((r.resolved / r.total) * 100) : 0;
+            return `<tr>
+      <td><strong>${r.station_name}</strong></td>
+      <td>${r.total}</td>
+      <td class="text-resolved">${r.resolved}</td>
+      <td class="text-pending">${r.total - r.resolved}</td>
+      <td>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="flex:1;height:5px;background:rgba(255,255,255,0.07);border-radius:3px;overflow:hidden">
+            <div style="width:${rate}%;height:100%;background:#4caf5a;border-radius:3px"></div>
+          </div>
+          <span style="font-size:0.75rem;color:#7dd880;font-family:monospace">${rate}%</span>
+        </div>
+      </td>
+    </tr>`;
+          })
+          .join("");
+      }
+
+      function drawDonut(canvasId, labels, data, colors) {
+        const ctx = document.getElementById(canvasId).getContext("2d");
+        if (window[canvasId + "Chart"]) window[canvasId + "Chart"].destroy();
+        window[canvasId + "Chart"] = new Chart(ctx, {
+          type: "doughnut",
+          data: {
+            labels,
+            datasets: [
+              {
+                data,
+                backgroundColor: colors,
+                borderColor: "rgba(0,0,0,0.2)",
+                borderWidth: 2,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                position: "right",
+                labels: {
+                  color: getChartMuted(),
+                  font: { size: 11 },
+                  padding: 12,
+                },
+              },
+              tooltip: {
+                backgroundColor: getChartBg(),
+                titleColor: getChartText(),
+                bodyColor: "#4caf5a",
+              },
+            },
+          },
+        });
+      }
+
+      function drawLineChart(canvasId, labels, data, label, color) {
+        const ctx = document.getElementById(canvasId).getContext("2d");
+        if (window[canvasId + "Chart"]) window[canvasId + "Chart"].destroy();
+        window[canvasId + "Chart"] = new Chart(ctx, {
+          type: "bar",
+          data: {
+            labels,
+            datasets: [
+              {
+                label,
+                data,
+                backgroundColor: color + "55",
+                borderColor: color,
+                borderWidth: 2,
+                borderRadius: 5,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                backgroundColor: getChartBg(),
+                titleColor: getChartText(),
+                bodyColor: color,
+              },
+            },
+            scales: {
+              x: {
+                ticks: { color: getChartMuted(), font: { size: 10 } },
+                grid: { color: getChartGrid() },
+              },
+              y: {
+                ticks: { color: getChartMuted(), font: { size: 10 } },
+                grid: { color: getChartGrid() },
+              },
+            },
+          },
+        });
+      }
+
+      /* ── Complaints tab ────────────────────────────── */
+      async function loadStationsList() {
+        const r = await fetch("/data/stations.json");
+        const { stations } = await r.json();
+
+        ["filterStation", "histStation"].forEach((selId) => {
+          const sel = document.getElementById(selId);
+          stations.forEach((st) => {
+            const opt = document.createElement("option");
+            opt.value = st.id;
+            opt.textContent = st.name;
+            sel.appendChild(opt.cloneNode(true));
+          });
+        });
+      }
+
+      function populateMonthFilter() {
+        const sel = document.getElementById("filterMonth");
+        const now = new Date();
+        for (let i = 0; i < 12; i++) {
+          const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+          const opt = document.createElement("option");
+          opt.value = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+          opt.textContent = d.toLocaleString("en-US", {
+            month: "long",
+            year: "numeric",
+          });
+          sel.appendChild(opt);
+        }
+      }
+
+      async function loadComplaints() {
+        const station = document.getElementById("filterStation").value;
+        const status = document.getElementById("filterStatus").value;
+        const monthVal = document.getElementById("filterMonth").value;
+
+        let url = "/api/complaints?";
+        if (station) url += `station=${station}&`;
+        if (status) url += `status=${status}&`;
+        if (monthVal) {
+          const [year, month] = monthVal.split("-");
+          url += `month=${month}&year=${year}`;
+        }
+
+        const r = await fetch(url);
+        const data = await r.json();
+        const tbody = document.getElementById("complaintsTable");
+
+        if (!data.length) {
+          tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--text-dimmer);padding:32px">No complaints found.</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = data
+          .map(
+            (c) => `
+    <tr>
+      <td style="max-width:160px"><strong>${c.station_name}</strong></td>
+      <td><span style="font-size:0.75rem">${TYPE_LABELS[c.type] || c.type}</span></td>
+      <td>
+        <div>${c.user_name}</div>
+        ${c.user_phone ? `<div style="font-size:0.7rem;color:var(--text-muted)">${c.user_phone}</div>` : ""}
+      </td>
+      <td style="max-width:220px;font-size:0.8rem;color:rgba(220,245,222,0.7)">${c.description.slice(0, 80)}${c.description.length > 80 ? "…" : ""}</td>
+      <td><span class="pill pill-${c.status}">${c.status}</span></td>
+      <td style="font-size:0.75rem;font-family:monospace;color:var(--text-muted)">${c.created_at ? c.created_at.slice(0, 10) : "–"}</td>
+      <td>
+        <select class="filter-select" style="padding:5px 8px;font-size:0.72rem"
+                onchange="updateComplaintStatus(${c.id}, this.value)">
+          <option value="pending"   ${c.status === "pending" ? "selected" : ""}>Pending</option>
+          <option value="reviewing" ${c.status === "reviewing" ? "selected" : ""}>Reviewing</option>
+          <option value="resolved"  ${c.status === "resolved" ? "selected" : ""}>Resolved</option>
+        </select>
+      </td>
+    </tr>`,
+          )
+          .join("");
+      }
+
+      async function updateComplaintStatus(id, status) {
+        await fetch(`/api/complaints/${id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status }),
+        });
+        showToast(`Complaint marked as ${status}`);
+        loadAnalytics();
+      }
+
+      /* ── Station History tab ───────────────────────── */
+      function setHistDays(days, btn) {
+        histDays = days;
+        document
+          .querySelectorAll("#pane-history .range-btn")
+          .forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        loadStationHistory();
+      }
+
+      async function loadStationHistory() {
+        const stationId = document.getElementById("histStation").value;
+        if (!stationId) return;
+
+        const r = await fetch(
+          `/api/fill-history/${stationId}?days=${histDays}`,
+        );
+        const data = await r.json();
+        const ctx = document.getElementById("histChart").getContext("2d");
+
+        document.getElementById("histChartTitle").textContent =
+          `Fill History — ${document.getElementById("histStation").options[document.getElementById("histStation").selectedIndex].text}`;
+
+        if (histChartInst) histChartInst.destroy();
+        histChartInst = new Chart(ctx, {
+          type: "line",
+          data: {
+            labels: data.map((d) => (d.hour ? d.hour.slice(5, 16) : d.day)),
+            datasets: [
+              {
+                label: "Avg Fill %",
+                data: data.map((d) => d.avg_fill),
+                borderColor: "#4caf5a",
+                backgroundColor: "rgba(76,175,90,0.1)",
+                fill: true,
+                tension: 0.4,
+                pointRadius: 3,
+                pointBackgroundColor: "#4caf5a",
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                backgroundColor: getChartBg(),
+                titleColor: getChartText(),
+                bodyColor: "#4caf5a",
+                callbacks: { label: (ctx) => ` ${ctx.parsed.y}% fill` },
+              },
+            },
+            scales: {
+              x: {
+                ticks: {
+                  color: getChartMuted(),
+                  maxTicksLimit: 10,
+                  font: { size: 10 },
+                },
+                grid: { color: getChartGrid() },
+              },
+              y: {
+                min: 0,
+                max: 100,
+                ticks: {
+                  color: getChartMuted(),
+                  font: { size: 10 },
+                  callback: (v) => v + "%",
+                },
+                grid: { color: getChartGrid() },
+              },
+            },
+          },
+        });
+      }
+
+      async function loadAllStationsHistory() {
+        const r = await fetch(`/api/fill-history?days=7`);
+        const data = await r.json();
+        const ctx = document
+          .getElementById("allStationsChart")
+          .getContext("2d");
+
+        // Group by station
+        const byStation = {};
+        data.forEach((row) => {
+          if (!byStation[row.station_id]) byStation[row.station_id] = [];
+          byStation[row.station_id].push(row);
+        });
+
+        const days = [...new Set(data.map((r) => r.day))].sort();
+        const datasets = Object.entries(byStation).map(([sid, rows], i) => {
+          const map = {};
+          rows.forEach((r) => {
+            map[r.day] = r.avg_fill;
+          });
+          return {
+            label: sid,
+            data: days.map((d) => map[d] || null),
+            borderColor: CHART_COLORS[i % CHART_COLORS.length],
+            backgroundColor: "transparent",
+            tension: 0.4,
+            pointRadius: 3,
+          };
+        });
+
+        if (allStationsChartInst) allStationsChartInst.destroy();
+        allStationsChartInst = new Chart(ctx, {
+          type: "line",
+          data: { labels: days, datasets },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                labels: { color: getChartMuted(), font: { size: 11 } },
+              },
+              tooltip: {
+                backgroundColor: getChartBg(),
+                titleColor: getChartText(),
+              },
+            },
+            scales: {
+              x: {
+                ticks: { color: getChartMuted(), font: { size: 10 } },
+                grid: { color: getChartGrid() },
+              },
+              y: {
+                min: 0,
+                max: 100,
+                ticks: {
+                  color: getChartMuted(),
+                  font: { size: 10 },
+                  callback: (v) => v + "%",
+                },
+                grid: { color: getChartGrid() },
+              },
+            },
+          },
+        });
+      }
+
+      /* ── Users tab ─────────────────────────────────── */
+      async function loadUsers() {
+        const r = await fetch("/api/admin/users");
+        const data = await r.json();
+        const tbody = document.getElementById("usersTable");
+
+        tbody.innerHTML = data
+          .map(
+            (u) => `
+    <tr>
+      <td><strong>${u.name}</strong></td>
+      <td style="font-family:monospace;font-size:0.8rem">${u.email}</td>
+      <td><span class="pill ${u.role === "admin" ? "pill-reviewing" : "pill-resolved"}">${u.role}</span></td>
+      <td style="font-size:0.75rem;color:var(--text-muted)">${u.created_at ? u.created_at.slice(0, 10) : "–"}</td>
+      <td>
+        ${
+          u.email !== "admin@rcc.gov.bd"
+            ? `
+        <select class="filter-select" style="padding:5px 8px;font-size:0.72rem"
+                onchange="updateUserRole(${u.id}, this.value)">
+          <option value="citizen" ${u.role === "citizen" ? "selected" : ""}>citizen</option>
+          <option value="admin"   ${u.role === "admin" ? "selected" : ""}>admin</option>
+        </select>`
+            : '<span style="font-size:0.72rem;color:var(--text-dimmer)">protected</span>'
+        }
+      </td>
+    </tr>`,
+          )
+          .join("");
+      }
+
+      async function updateUserRole(id, role) {
+        await fetch(`/api/admin/users/${id}/role`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ role }),
+        });
+        showToast(`User role updated to ${role}`);
+      }
+
+      /* ── PDF Report ────────────────────────────────── */
+      function downloadReport() {
+        const now = new Date();
+        const month = now.getMonth() + 1;
+        const year = now.getFullYear();
+        window.open(
+          `/api/report/monthly?month=${month}&year=${year}`,
+          "_blank",
+        );
+      }
+    </script>
+  </body>
+</html>

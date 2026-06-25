@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Map — RCC WMS</title>
+    <link rel="stylesheet" href="css/style.css" />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    />
+    <style>
+      #map {
+        height: 520px;
+        border-radius: 16px;
+        overflow: hidden;
+        border: var(--border-card);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.22);
+      }
+
+      /* Map tile tint — subtle in dark, normal in light */
+      body:not(.light-mode) .leaflet-tile-pane {
+        filter: saturate(0.7) brightness(0.85) hue-rotate(8deg);
+      }
+
+      /* Popup wrapper — uses CSS vars so it switches with theme */
+      .leaflet-popup-content-wrapper {
+        background: var(--bg-popup) !important;
+        border: var(--border-card) !important;
+        border-radius: 13px !important;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35) !important;
+      }
+      .leaflet-popup-tip {
+        background: var(--bg-popup) !important;
+      }
+      .leaflet-popup-content {
+        margin: 14px 16px !important;
+        min-width: 220px;
+      }
+      .leaflet-popup-close-button {
+        color: var(--text-muted) !important;
+      }
+
+      /* Popup inner elements — all use CSS vars */
+      .map-popup-name {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--text-heading) !important;
+        margin-bottom: 4px;
+        line-height: 1.3;
+      }
+      .map-popup-loc {
+        font-size: 0.73rem;
+        font-family: monospace;
+        color: var(--text-muted) !important;
+        margin-bottom: 10px;
+      }
+      .map-popup-row {
+        font-size: 0.82rem;
+        line-height: 1.8;
+        color: var(--text-primary) !important;
+      }
+      .map-popup-row .label {
+        color: var(--text-muted) !important;
+        font-size: 0.78rem;
+      }
+      .map-popup-row .value {
+        font-weight: 600;
+        color: var(--text-primary) !important;
+      }
+      .map-popup-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 7px;
+        margin-top: 12px;
+      }
+      .map-popup-btn {
+        display: block;
+        padding: 8px 14px;
+        border-radius: 20px;
+        font-size: 0.78rem;
+        font-weight: 600;
+        text-align: center;
+        text-decoration: none;
+        cursor: pointer;
+        border: none;
+        letter-spacing: 0.03em;
+        transition: opacity 0.2s;
+      }
+      .map-popup-btn:hover {
+        opacity: 0.85;
+      }
+      .map-popup-btn--call {
+        background: var(--green-accent);
+        color: #ffffff !important;
+      }
+      .map-popup-btn--complaint {
+        background: var(--gold);
+        color: #ffffff !important;
+      }
+      body.light-mode .map-popup-btn--complaint {
+        background: #9a7520;
+      }
+
+      /* Legend */
+      .map-legend {
+        background: var(--bg-card);
+        border: var(--border-card);
+        border-radius: 12px;
+        padding: 13px 18px;
+        margin-top: 18px;
+        display: flex;
+        gap: 22px;
+        flex-wrap: wrap;
+        align-items: center;
+        transition:
+          background 0.3s,
+          border-color 0.3s;
+      }
+      .legend-label {
+        font-size: 0.68rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+      }
+      .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        font-size: 0.76rem;
+        color: var(--text-secondary);
+      }
+      .legend-dot {
+        width: 11px;
+        height: 11px;
+        border-radius: 50%;
+        flex-shrink: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+      <div class="brand">
+        <img
+          class="brand-logo"
+          src="images/rcc_logo.png"
+          alt="RCC"
+          onerror="this.style.display = 'none'"
+        />
+        <div class="brand-text">
+          Rajshahi City Corporation
+          <span>Waste Management System</span>
+        </div>
+      </div>
+      <div class="nav-links" id="navLinks">
+        <a
+          class="nav-btn"
+          href="index.html"
+          data-page="index.html"
+          data-i18n="home"
+          >Home</a
+        >
+        <a
+          class="nav-btn"
+          href="stations.html"
+          data-page="stations.html"
+          data-i18n="stations"
+          >Stations</a
+        >
+        <a
+          class="nav-btn active"
+          href="map.html"
+          data-page="map.html"
+          data-i18n="map"
+          >Map</a
+        >
+        <a
+          class="nav-btn"
+          href="about.html"
+          data-page="about.html"
+          data-i18n="about"
+          >About</a
+        >
+        <div class="lang-toggle">
+          <button class="lang-btn" data-lang="en">EN</button>
+          <button class="lang-btn" data-lang="bn">বাং</button>
+        </div>
+        <button class="theme-toggle" title="Toggle Dark/Light Mode">☀️</button>
+      </div>
+    </nav>
+
+    <div class="page-bg">
+      <div class="page-body">
+        <div class="page-eyebrow">City Overview</div>
+        <h1 class="page-title"><strong>Station Map</strong></h1>
+        <div class="page-line"></div>
+
+        <div id="map"></div>
+
+        <div class="map-legend">
+          <span class="legend-label">Fill Level</span>
+          <div class="legend-item">
+            <div class="legend-dot" style="background: #4caf5a"></div>
+            Low (0–45%)
+          </div>
+          <div class="legend-item">
+            <div class="legend-dot" style="background: #f39c12"></div>
+            Moderate (45–75%)
+          </div>
+          <div class="legend-item">
+            <div class="legend-dot" style="background: #e74c3c"></div>
+            High (&gt;75%)
+          </div>
+        </div>
+      </div>
+      <footer>
+        © 2026 Rajshahi City Corporation · Waste Management System
+      </footer>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+      const STATION_COORDS = {
+        bulonpur: [24.3745, 88.5764],
+        railway: [24.374469, 88.607582],
+        northern: [24.364694, 88.625995],
+        sapura: [24.385446, 88.601423],
+        terokhadia: [24.38479, 88.59234],
+        kazla: [24.36436, 88.63281],
+      };
+
+      function fillColor(pct) {
+        if (pct > 75) return "#e74c3c";
+        if (pct > 45) return "#f39c12";
+        return "#4caf5a";
+      }
+
+      function makePinSvg(pct) {
+        const color = fillColor(pct);
+        return `<svg xmlns="http://www.w3.org/2000/svg" width="42" height="54" viewBox="0 0 42 54">
+    <defs>
+      <filter id="sh" x="-30%" y="-20%" width="160%" height="160%">
+        <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="rgba(0,0,0,0.40)"/>
+      </filter>
+    </defs>
+    <path d="M21 0C9.4 0 0 9.4 0 21c0 15.2 21 33 21 33s21-17.8 21-33C42 9.4 32.6 0 21 0z"
+          fill="white" filter="url(#sh)"/>
+    <path d="M21 3C11.1 3 3 11.1 3 21c0 13.5 18 30 18 30s18-16.5 18-30C39 11.1 30.9 3 21 3z"
+          fill="${color}"/>
+    <circle cx="21" cy="21" r="10" fill="white" opacity="0.95"/>
+    <text x="21" y="25.5" text-anchor="middle" font-size="9.5" font-weight="bold"
+          font-family="monospace" fill="${color}">${pct}%</text>
+  </svg>`;
+      }
+
+      function calcFillPct(clearanceTime) {
+        const [time, period] = clearanceTime.trim().toLowerCase().split(" ");
+        let [h, m] = time.split(":").map(Number);
+        if (period === "pm" && h !== 12) h += 12;
+        if (period === "am" && h === 12) h = 0;
+        const now = new Date();
+        let clr = new Date();
+        clr.setHours(h, m || 0, 0, 0);
+        if (clr < now) clr.setDate(clr.getDate() + 1);
+        const diff = clr - now;
+        return Math.min(
+          100,
+          Math.max(0, Math.round(((86400000 - diff) / 86400000) * 100)),
+        );
+      }
+
+      document.addEventListener("DOMContentLoaded", async () => {
+        const map = L.map("map", { center: [24.3745, 88.5764], zoom: 14 });
+
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          attribution:
+            '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+          maxZoom: 19,
+        }).addTo(map);
+
+        try {
+          const r = await fetch("/data/stations.json");
+          const { stations } = await r.json();
+
+          stations.forEach((st) => {
+            const coords = STATION_COORDS[st.id] || [24.3745, 88.5764];
+            const pct = calcFillPct(st.clearance_time);
+            const color = fillColor(pct);
+
+            const icon = L.divIcon({
+              html: makePinSvg(pct),
+              iconSize: [42, 54],
+              iconAnchor: [21, 54],
+              popupAnchor: [0, -58],
+              className: "",
+            });
+
+            const marker = L.marker(coords, { icon }).addTo(map);
+
+            const callBtn = st.contact
+              ? `<a class="map-popup-btn map-popup-btn--call" href="tel:${st.contact}">📞 ${st.contact}</a>`
+              : "";
+
+            marker.bindPopup(
+              `
+        <div class="map-popup-name">${st.name}</div>
+        <div class="map-popup-loc">📍 ${st.location}</div>
+        <div class="map-popup-row">
+          <span class="label">Fill level:&nbsp;</span>
+          <span class="value" style="color:${color}">${pct}%</span>
+        </div>
+        <div class="map-popup-row">
+          <span class="label">Clearance:&nbsp;</span>
+          <span class="value">${st.clearance_time}</span>
+        </div>
+        <div class="map-popup-row">
+          <span class="label">Capacity:&nbsp;</span>
+          <span class="value">${st.capacity_tons || "–"} tons/day</span>
+        </div>
+        <div class="map-popup-actions">
+          ${callBtn}
+          <a class="map-popup-btn map-popup-btn--complaint" href="stations.html">⚠️ Complaints</a>
+        </div>
+      `,
+              { maxWidth: 280 },
+            );
+          });
+
+          const coords = stations
+            .filter((st) => STATION_COORDS[st.id])
+            .map((st) => STATION_COORDS[st.id]);
+          if (coords.length > 1) map.fitBounds(coords, { padding: [40, 40] });
+        } catch (e) {
+          console.error("Map load error:", e);
+        }
+      });
+    </script>
+  </body>
+</html>

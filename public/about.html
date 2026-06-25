@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>About — RCC WMS</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <div class="brand">
+        <img
+          class="brand-logo"
+          src="images/rcc_logo.png"
+          alt="RCC"
+          onerror="this.style.display = 'none'"
+        />
+        <div class="brand-text">
+          Rajshahi City Corporation <span>Waste Management System</span>
+        </div>
+      </div>
+      <div class="nav-links" id="navLinks">
+        <a
+          class="nav-btn"
+          href="index.html"
+          data-page="index.html"
+          data-i18n="home"
+          >Home</a
+        >
+        <a
+          class="nav-btn"
+          href="stations.html"
+          data-page="stations.html"
+          data-i18n="stations"
+          >Stations</a
+        >
+        <a class="nav-btn" href="map.html" data-page="map.html" data-i18n="map"
+          >Map</a
+        >
+        <a
+          class="nav-btn active"
+          href="about.html"
+          data-page="about.html"
+          data-i18n="about"
+          >About</a
+        >
+        <div class="lang-toggle">
+          <button class="lang-btn" data-lang="en">EN</button>
+          <button class="lang-btn" data-lang="bn">বাং</button>
+        </div>
+        <button class="theme-toggle" title="Toggle Dark/Light Mode">☀️</button>
+      </div>
+    </nav>
+
+    <div class="page-bg">
+      <div class="page-body">
+        <div class="page-eyebrow">System Overview</div>
+        <h1 class="page-title">About <strong>RCC WMS</strong></h1>
+        <div class="page-line"></div>
+
+        <div class="about-card">
+          <p>
+            The
+            <strong>Rajshahi City Corporation Waste Management System</strong>
+            is a smart civic dashboard for real-time monitoring of secondary
+            transfer stations (STS) across Rajshahi city. It enables citizens to
+            stay informed, report issues, and hold the corporation accountable —
+            while giving administrators the tools to track, respond, and improve
+            service delivery.
+          </p>
+          <p>
+            The system tracks fill levels dynamically based on clearance
+            schedules, records historical data every 10 minutes, and lets
+            citizens file complaints that are tracked all the way through to
+            resolution.
+          </p>
+          <div class="feature-grid">
+            <div class="feat">
+              <strong>📊 Live Station Monitoring</strong>Real-time fill levels,
+              countdown timers, and clearance status for all STS locations.
+            </div>
+            <div class="feat">
+              <strong>🗺️ GPS Map View</strong>Interactive Leaflet map with
+              colour-coded station pins based on current fill level.
+            </div>
+            <div class="feat">
+              <strong>📈 Station History</strong>Fill level charts over 7, 14,
+              or 30 days per station — powered by live backend data.
+            </div>
+            <div class="feat">
+              <strong>⚠️ Complaint System</strong>Citizens can file complaints
+              per station (overflow, odour, damage, etc.) with status tracking.
+            </div>
+            <div class="feat">
+              <strong>👤 Citizen Login</strong>Register and log in to track your
+              own complaint history and receive status updates.
+            </div>
+            <div class="feat">
+              <strong>🛡️ Admin Dashboard</strong>Analytics, complaint
+              management, user control, and monthly PDF report generation.
+            </div>
+            <div class="feat">
+              <strong>📄 PDF Reports</strong>One-click monthly reports with
+              station summaries, complaint breakdowns, and trends.
+            </div>
+          </div>
+        </div>
+
+        <div class="btn-row">
+          <a class="btn-primary" href="stations.html">📊 View Stations</a>
+          <a class="btn-outline" href="map.html">🗺️ Open Map</a>
+          <a class="btn-outline btn-gold" href="login.html"
+            >👤 Login / Register</a
+          >
+        </div>
+      </div>
+      <footer>
+        © 2026 Rajshahi City Corporation · Waste Management System
+      </footer>
+    </div>
+
+    <script src="js/app.js"></script>
+  </body>
+</html>

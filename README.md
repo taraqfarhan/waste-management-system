@@ -5,98 +5,48 @@ with live fill-level tracking, clearance countdowns, and station details.
 
 ---
 
-## Project Structure
-
-```
-WasteManagementSystem/
-│
-├── index.html          ← Home/landing page
-├── about.html          ← About the STS network
-├── stations.html       ← Live station monitoring
-├── map.html            ← Geographic map
-│
-├── css/
-│   └── style.css       ← All shared styles
-│
-├── js/
-│   ├── app.js          ← Shared nav helper
-│   └── stations.js     ← Station rendering & live timers
-│
-├── data/
-│   └── stations.json   ← Station data (add/edit)
-│
-└── images/
-    ├── rcc_logo.png
-    ├── sts1.jpg
-    └── .....           ← (others added as needed)
-```
-
----
-
-## How to Add a New Station
+## Add or Edit a New Station
 
 Open `data/stations.json` and add a new object to the `"stations"` array:
 
 ```json
 {
-  "id": "terakhadia",
-  "name": "Terakhadia Secondary Transfer Station",
-  "location": "Terakhadia, Rajshahi",
-  "image": "images/sts-terakhadia.jpg",
-  "clearance_time": "02:00 pm",
-  "contact": "+880 721 000003",
-  "capacity_tons": 55,
-  "ward": "Ward 15"
+  "id": "northern",
+  "name": "Adarsha School Secondary Transfer Station",
+  "location": "Norther More, Rajshahi",
+  "ward": "Ward 22",
+  "capacity_tons": 50,
+  "clearance_time": "06:00 pm",
+  "contact": "+880721770003",
+  "image": "images/sts3.jpg",
+  "lat": 24.364694,
+  "lng": 88.625995
 }
 ```
 
-Then drop `sts-terakhadia.jpg` into the `images/` folder. That's it — no code changes needed.
+Then drop `sts-terakhadia.jpg` into the `public/images/` folder.
 
-### Station fields
+## Add or Edit the Station Coordinates
 
-| Field            | Required | Description                          |
-| ---------------- | -------- | ------------------------------------ |
-| `id`             | Yes      | Unique identifier (no spaces)        |
-| `name`           | Yes      | Full station name                    |
-| `location`       | Yes      | Human-readable address               |
-| `image`          | Yes      | Path relative to project root        |
-| `clearance_time` | Yes      | Format: `"HH:MM am"` or `"HH:MM pm"` |
-| `contact`        | No       | Phone number for the contact button  |
-| `capacity_tons`  | No       | Daily capacity in tons               |
-| `ward`           | No       | City ward identifier                 |
+1. First add `lat` and `lng` properties for the new station to `data/stations.json` as described above.
+2. Then, edit `STATIO_COORDS` in `public/map.json` and add the new station's coordinates:
 
----
-
-## How to Modify an Existing Station
-
-Edit the relevant object in `data/stations.json`. For example, to change the
-clearance time of the Railway station from 1:00 pm to 2:30 pm:
-
-```json
-"clearance_time": "02:30 pm"
+```js
+const STATION_COORDS = {
+  bulonpur: [24.3745, 88.5764],
+  railway:  [24.374469, 88.607582],
+  northern: [24.364694, 88.625995],
+  sapura: [24.385446, 88.601423],
+  terokhadia: [24.38479, 88.59234],
+  kazla: [24.36436, 88.63281]
+};
 ```
-
-To replace its image, put the new image in `images/` and update the `"image"` field.
 
 ---
 
 ## Running Locally
 
-Because `stations.js` fetches `stations.json` via `fetch()`, we need a local server
-(browsers block `fetch()` on `file://` URLs).
-
-**Option 1 — VS Code Live Server extension** (recommended) <br>
-Right-click `index.html` → Open with Live Server.
-
-**Option 2 — Python**
-
 ```bash
-python -m http.server 8000
-# then open http://localhost:8000
-```
-
-**Option 3 — Node.js**
-
-```bash
-npx serve .
+npm install
+npm start
 ```

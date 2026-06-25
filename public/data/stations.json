@@ -1,0 +1,76 @@
+{
+  "stations": [
+    {
+      "id": "bulonpur",
+      "name": "Bulonpur Secondary Transfer Station",
+      "location": "Bulonpur, Rajshahi",
+      "ward": "Ward 12",
+      "capacity_tons": 45,
+      "clearance_time": "06:00 pm",
+      "contact": "+880721770001",
+      "image": "images/sts1.jpg",
+      "lat": 24.3745,
+      "lng": 88.5764
+    },
+    {
+      "id": "railway",
+      "name": "Railway Station Secondary Transfer Station",
+      "location": "Railway Colony, Rajshahi",
+      "ward": "Ward 7",
+      "capacity_tons": 60,
+      "clearance_time": "07:30 pm",
+      "contact": "+880721770002",
+      "image": "images/sts2.jpg",
+      "lat": 24.374469,
+      "lng": 88.607582
+    },
+    {
+      "id": "northern",
+      "name": "Adarsha School Secondary Transfer Station",
+      "location": "Norther More, Rajshahi",
+      "ward": "Ward 22",
+      "capacity_tons": 50,
+      "clearance_time": "08:00 pm",
+      "contact": "+880721770003",
+      "image": "images/sts3.jpg",
+      "lat": 24.364694,
+      "lng": 88.625995
+    },
+    {
+      "id": "sapura",
+      "name": "Sapura Secondary Transfer Station",
+      "location": "Near BSCIC Road, Sapura Rajshahi",
+      "ward": "Ward 20",
+      "capacity_tons": 25,
+      "clearance_time": "07:00 pm",
+      "contact": "+880172170003",
+      "image": "images/sts4.jpg",
+      "lat": 24.385446,
+      "lng": 88.601423
+    },
+    {
+      "id": "terokhadia",
+      "name": "Terokhadia Secondary Transfer Station",
+      "location": "City Haat Bypass Road, Terokhadia, Rajshahi",
+      "ward": "Ward 12",
+      "capacity_tons": 35,
+      "clearance_time": "03:00 pm",
+      "contact": "+880172170003",
+      "image": "images/sts5.jpg",
+      "lat": 24.38479,
+      "lng": 88.59234
+    },
+    {
+      "id": "kazla",
+      "name": "Kazla Secondary Transfer Station",
+      "location": "Natore Road, Kazla, Rajshahi",
+      "ward": "Ward 10",
+      "capacity_tons": 55,
+      "clearance_time": "05:00 pm",
+      "contact": "+8801745170003",
+      "image": "images/sts6.jpg",
+      "lat": 24.39436,
+      "lng": 88.63281
+    }
+  ]
+}

@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RCC Waste Management System</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <div class="brand">
+        <img
+          class="brand-logo"
+          src="images/rcc_logo.png"
+          alt="RCC Logo"
+          onerror="this.style.display = 'none'"
+        />
+        <div class="brand-text">
+          Rajshahi City Corporation
+          <span>Waste Management System</span>
+        </div>
+      </div>
+      <div class="nav-links" id="navLinks">
+        <a
+          class="nav-btn active"
+          href="index.html"
+          data-page="index.html"
+          data-i18n="home"
+          >Home</a
+        >
+        <a
+          class="nav-btn"
+          href="stations.html"
+          data-page="stations.html"
+          data-i18n="stations"
+          >Stations</a
+        >
+        <a class="nav-btn" href="map.html" data-page="map.html" data-i18n="map"
+          >Map</a
+        >
+        <a
+          class="nav-btn"
+          href="about.html"
+          data-page="about.html"
+          data-i18n="about"
+          >About</a
+        >
+        <div class="lang-toggle">
+          <button class="lang-btn" data-lang="en">EN</button>
+          <button class="lang-btn" data-lang="bn">বাং</button>
+        </div>
+        <button class="theme-toggle" title="Toggle Dark/Light Mode">☀️</button>
+      </div>
+    </nav>
+
+    <div class="home-bg">
+      <div class="home-content">
+        <div class="logo-ring">
+          <img
+            class="home-logo"
+            src="images/rcc_logo.png"
+            alt="RCC"
+            onerror="this.style.display = 'none'"
+          />
+        </div>
+        <div class="home-eyebrow">Rajshahi City Corporation</div>
+        <h1 class="home-title">Waste <strong>Management</strong></h1>
+        <div class="home-subtitle">Smart City Dashboard</div>
+        <div class="home-divider"></div>
+        <p class="home-tagline">
+          Real-time monitoring of secondary transfer stations across Rajshahi.
+          Track fill levels, file complaints, and keep the city clean.
+        </p>
+        <div class="home-btns">
+          <a class="btn-primary" href="stations.html">📊 View Stations</a>
+          <a class="btn-outline" href="map.html">🗺 Open Map</a>
+        </div>
+      </div>
+    </div>
+
+    <footer>© 2026 Rajshahi City Corporation · Waste Management System</footer>
+
+    <script src="js/app.js"></script>
+  </body>
+</html>

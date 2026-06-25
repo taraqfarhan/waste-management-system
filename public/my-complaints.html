@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Complaints — RCC WMS</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <div class="brand">
+        <img
+          class="brand-logo"
+          src="images/rcc_logo.png"
+          alt="RCC"
+          onerror="this.style.display = 'none'"
+        />
+        <div class="brand-text">
+          Rajshahi City Corporation
+          <span>Waste Management System</span>
+        </div>
+      </div>
+      <div class="nav-links" id="navLinks">
+        <a class="nav-btn" href="index.html" data-i18n="home">Home</a>
+        <a class="nav-btn" href="stations.html" data-i18n="stations"
+          >Stations</a
+        >
+        <a class="nav-btn" href="map.html" data-i18n="map">Map</a>
+        <div class="lang-toggle">
+          <button class="lang-btn" data-lang="en">EN</button>
+          <button class="lang-btn" data-lang="bn">বাং</button>
+        </div>
+        <button class="theme-toggle" title="Toggle Dark/Light Mode">☀️</button>
+      </div>
+    </nav>
+
+    <div class="page-bg">
+      <div class="page-body">
+        <div class="page-eyebrow">Citizen Portal</div>
+        <h1 class="page-title"><strong>My Complaints</strong></h1>
+        <div class="page-line"></div>
+
+        <div id="complaintsContainer">
+          <p style="font-size: 0.88rem; color: var(--text-muted)">Loading…</p>
+        </div>
+
+        <div style="margin-top: 28px">
+          <a class="btn-primary" href="stations.html"
+            >➕ Submit New Complaint</a
+          >
+        </div>
+      </div>
+      <footer>
+        © 2026 Rajshahi City Corporation · Waste Management System
+      </footer>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script>
+      const TYPE_LABELS = {
+        overflow: "Bin Overflow / Not Cleared",
+        odor: "Bad Odor / Sanitation",
+        damage: "Damaged Infrastructure",
+        illegal: "Illegal Dumping",
+        staff: "Staff Conduct",
+        other: "Other",
+      };
+
+      document.addEventListener("DOMContentLoaded", async () => {
+        // Auth guard
+        const me = await fetch("/api/auth/me").then((r) => r.json());
+        if (!me.user) {
+          window.location.href = "/login.html";
+          return;
+        }
+
+        const r = await fetch("/api/complaints/mine");
+        const data = await r.json();
+        const container = document.getElementById("complaintsContainer");
+
+        if (!data.length) {
+          container.innerHTML = `
+      <div class="my-complaints-empty">
+        <div style="font-size:2.5rem;margin-bottom:12px">📭</div>
+        <div>You haven't submitted any complaints yet.</div>
+        <div style="margin-top:8px;font-size:0.78rem;color:var(--text-dimmer)">
+          Go to Stations to report an issue.
+        </div>
+      </div>`;
+          return;
+        }
+
+        container.innerHTML = data
+          .map((c) => {
+            const pill = `<span class="pill pill-${c.status}">${c.status}</span>`;
+            const date = c.created_at ? c.created_at.slice(0, 10) : "–";
+            return `
+      <div class="complaint-card">
+        <div class="complaint-card-header">
+          <div>
+            <div class="complaint-card-station">${c.station_name}</div>
+            <div style="font-size:0.72rem;color:var(--text-muted);margin-top:3px">
+              ${TYPE_LABELS[c.type] || c.type}
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px">
+            ${pill}
+            <div class="complaint-card-date">${date}</div>
+          </div>
+        </div>
+        <div class="complaint-card-desc">${c.description}</div>
+        ${c.resolved_at ? `<div style="margin-top:8px;font-size:0.7rem;color:rgba(76,175,90,0.6)">✓ Resolved on ${c.resolved_at.slice(0, 10)}</div>` : ""}
+      </div>`;
+          })
+          .join("");
+      });
+    </script>
+  </body>
+</html>
